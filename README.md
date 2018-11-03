@@ -1,7 +1,5 @@
 # OverTheWire-AutoSolves
 ``` bash
-sudo apt install python3 
-sudo apt install python3-pip
-pip3 install pwn 
+bash install.sh
 ```
 
