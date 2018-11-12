@@ -358,6 +358,22 @@ sh.sendline(b'git cat-file -p $sha')
 sh.recvuntil(b'$ $ ')
 end()
 
+# bandit31 --> bandit32
+start()
+git_clone()
+sh.sendline(b'echo "May I come in?" > key.txt')
+sh.sendline(b'rm .gitignore')
+sh.sendline(b'git add .')
+sh.sendline(b'git commit -m "give me that flag"')
+sh.sendline(b'git push')
+sh.recvuntil(b'Are you sure you want to continue connecting (yes/no)?')
+sh.sendline(b'yes')
+sh.recvuntil(b'bandit31-git@localhost\'s password:')
+sh.sendline(flag)
+sh.recvuntil(b'remote: Well done! Here is the password for the next level:\x1b[K\n')
+sh.recvuntil(b'remote')
+end()
+
 # end
 f.close()
 print ("\n")
