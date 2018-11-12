@@ -310,16 +310,22 @@ print("env command --> env /bin/sh --> id euid=bandit27")
 flag=b'$ 3ba3118a22e93127a4ed485be72ef5ea\n'
 add_flag()
 
+# git challenges
+
+def git_clone():
+    global flag, user, sh
+    sh.sendline(b'TF=$(mktemp -d); cd $TF')
+    sh.sendline(b'git clone ssh://%b-git@localhost/home/%b-git/repo' % (user, user))
+    sh.recvuntil(b'Are you sure you want to continue connecting (yes/no)?')
+    sh.sendline(b'yes')
+    sh.recvuntil(b'%b-git@localhost\'s password:' % (user))
+    sh.sendline(flag)
+    sh.recvuntil(b'done.')
+    sh.sendline(b'cd repo')
+
 # bandit27 --> bandit28
 start()
-sh.sendline(b'TF=$(mktemp -d); cd $TF')
-sh.sendline(b'git clone ssh://bandit27-git@localhost/home/bandit27-git/repo')
-sh.recvuntil(b'Are you sure you want to continue connecting (yes/no)?')
-sh.sendline(b'yes')
-sh.recvuntil(b'bandit27-git@localhost\'s password:')
-sh.sendline(flag)
-sh.recvuntil(b'done.')
-sh.sendline(b'cd repo')
+git_clone()
 sh.sendline(b'git checkout $(git log --branches -1 --pretty=format:"%H")')
 sh.sendline(b'cat README')
 sh.recvuntil(b'The password to the next level is')
@@ -327,14 +333,7 @@ end()
 
 # bandit28 --> bandit29
 start()
-sh.sendline(b'TF=$(mktemp -d); cd $TF')
-sh.sendline(b'git clone ssh://bandit28-git@localhost/home/bandit28-git/repo')
-sh.recvuntil(b'Are you sure you want to continue connecting (yes/no)?')
-sh.sendline(b'yes')
-sh.recvuntil(b'bandit28-git@localhost\'s password:')
-sh.sendline(flag)
-sh.recvuntil(b'done.')
-sh.sendline(b'cd repo')
+git_clone()
 sh.sendline(b'git checkout $(git log --branches -2 --pretty=format:"%H" | tail -n 1)')
 sh.sendline(b'cat README.md')
 sh.recvuntil(b'- password')
