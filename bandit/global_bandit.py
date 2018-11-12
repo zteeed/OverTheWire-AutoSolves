@@ -321,6 +321,7 @@ def git_clone():
     sh.recvuntil(b'%b-git@localhost\'s password:' % (user))
     sh.sendline(flag)
     sh.recvuntil(b'done.')
+    if user==b'bandit30': sh.recvuntil(b'done.')
     sh.sendline(b'cd repo')
 
 # bandit27 --> bandit28
@@ -350,6 +351,12 @@ sh.recvuntil(b'- password')
 end()
 
 # bandit30 --> bandit 31
+start()
+git_clone()
+sh.sendline(b'sha=$(git show-ref | tail -n 1 | cut -d\' \' -f1)')
+sh.sendline(b'git cat-file -p $sha')
+sh.recvuntil(b'$ $ ')
+end()
 
 # end
 f.close()
