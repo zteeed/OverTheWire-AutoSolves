@@ -339,6 +339,18 @@ sh.sendline(b'cat README.md')
 sh.recvuntil(b'- password')
 end()
 
+# bandit29 --> bandit 30
+start()
+git_clone()
+sh.sendline(b'sha=$(git show-ref | grep dev | head -n 1 | cut -d\' \' -f1)')
+sh.sendline(b'git update-ref HEAD $sha')
+sh.sendline(b'git reset --hard')
+sh.sendline(b'cat README.md')
+sh.recvuntil(b'- password')
+end()
+
+# bandit30 --> bandit 31
+
 # end
 f.close()
 print ("\n")
