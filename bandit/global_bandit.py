@@ -1,4 +1,5 @@
 #! /usr/bin/env python3
+
 import pwn
 import time
 import os
@@ -381,3 +382,4 @@ print ("\t\t OverTheWire Bandit Passwords")
 print ("\n")
 os.system('cat flag.txt')
 print ("\n")
+os._exit(0)
