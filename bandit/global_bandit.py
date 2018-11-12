@@ -295,6 +295,7 @@ f4.write(sh.recvuntil("-----END RSA PRIVATE KEY-----\n"))
 f4.close()
 s.close()
 
+print()
 print("Réduire la fenêtre au maximum")
 print("ssh -i sshkey bandit26@bandit.labs.overthewire.org -p 2220")
 print("Appuyer sur 'v' puis ':e cat /etc/bandit_pass/bandit26'")
@@ -302,11 +303,42 @@ flag=b'$ 5czgV9L3Xx8JPOyRbXh6lQbmIOWvPT6Z\n'
 add_flag()
 os.system('rm sshkey')
 
+# bandit26 --> bandit27
 print("Réduire la fenêtre au maximum")
 print("Appuyer sur 'v' puis ':set shell=/bin/bash' et ':shell' pour escape vim (http://zteeed.fr:4000)")
 print("env command --> env /bin/sh --> id euid=bandit27")
-flag=b'$ 3ba3118a22e93127a4ed485be72ef5ea'
+flag=b'$ 3ba3118a22e93127a4ed485be72ef5ea\n'
 add_flag()
+
+# bandit27 --> bandit28
+start()
+sh.sendline(b'TF=$(mktemp -d); cd $TF')
+sh.sendline(b'git clone ssh://bandit27-git@localhost/home/bandit27-git/repo')
+sh.recvuntil(b'Are you sure you want to continue connecting (yes/no)?')
+sh.sendline(b'yes')
+sh.recvuntil(b'bandit27-git@localhost\'s password:')
+sh.sendline(flag)
+sh.recvuntil(b'done.')
+sh.sendline(b'cd repo')
+sh.sendline(b'git checkout $(git log --branches -1 --pretty=format:"%H")')
+sh.sendline(b'cat README')
+sh.recvuntil(b'The password to the next level is')
+end()
+
+# bandit28 --> bandit29
+start()
+sh.sendline(b'TF=$(mktemp -d); cd $TF')
+sh.sendline(b'git clone ssh://bandit28-git@localhost/home/bandit28-git/repo')
+sh.recvuntil(b'Are you sure you want to continue connecting (yes/no)?')
+sh.sendline(b'yes')
+sh.recvuntil(b'bandit28-git@localhost\'s password:')
+sh.sendline(flag)
+sh.recvuntil(b'done.')
+sh.sendline(b'cd repo')
+sh.sendline(b'git checkout $(git log --branches -2 --pretty=format:"%H" | tail -n 1)')
+sh.sendline(b'cat README.md')
+sh.recvuntil(b'- password')
+end()
 
 # end
 f.close()
