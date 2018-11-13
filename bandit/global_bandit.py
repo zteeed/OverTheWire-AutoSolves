@@ -376,7 +376,6 @@ sh.recvuntil(b'remote')
 end()
 
 # bandit32 --> bandit33
-print([flag])
 start()
 sh.sendline(b'$0')
 sh.sendline(b'cat /etc/bandit_pass/bandit33')
